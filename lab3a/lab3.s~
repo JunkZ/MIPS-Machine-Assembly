@@ -1,0 +1,131 @@
+# First section:  user data,
+# each process has its own "private" area.
+
+        .data        
+glob1:  .byte   'A'
+        .space  999
+glob2:  .byte   '0'
+        .space  999
+glob3:  .byte   'a'
+        .space  999
+
+# Second section: user code.
+#
+# The first instructions initializes IO and Timer.
+# The last instruction in main are only used for start
+# up, they initialize the first process.
+
+        .text
+        .set noreorder
+main:
+        li    $t0, 0xFFFF0010   # address to Timer registers:
+                                # +0: Timer control register
+                                # +4: Timer count register
+                                # +8: Timer compare register
+
+        li    $t1, 0
+        sw    $t1, 4($t0)       # reset counter register
+
+        li    $t1, 63           # count from 0 to 63
+        sw    $t1, 8($t0)       # compare register := 63
+
+        li    $t1, 0b101001     # "101001": compare interrupt enable,
+                                #           compare reset enable,
+                                #           timer start
+        sw    $t1, 0($t0)       # control register := "101001"
+
+        li    $t0, 0xFFFF0000   # address to I/O registers:
+                                # +0: Input control register
+ 
+        li    $t1, 0b10         # "10": interrupt enable
+        sw    $t1, 0($t0)       # control register := "10"
+
+        li    $t0, 0x0003       # enable HW Interrupt 1 (input): bit 11
+                                # enable HW Interrupt 0 (timer): bit 10
+                                # set user mode:     bit 1
+                                # enable interrupts: bit 0
+
+        mtc0  $t0, $12          # CP0 status := 0x0C03
+
+        la    $gp, glob1        # dirty setup for process 1
+
+proc1:  # ++++++++++ first process +++++++++
+
+        # Description: proc1 reads the byte stored at 0($gp),
+        # prints it, increments to the next character,
+        # saving that back into 0($gp).  After printing 'Z',
+        # this process should then start over again with 'A', in
+        # an endless loop.  The symbol "glob1" may not be used.
+	lb $t2, 0($gp) 		#load character
+	li $v0, 0x102 		#Set kernel service value for output
+	move $a0, $t2		#Set argument to send to kernel
+	SYSCALL 		#Call Kernel to do output
+	addiu $t2, $t2, 1 	#Count to next char
+	li $t6,91		#Init branch condition if char variable is 91 aka 'Z' has been written
+	sb $t2, 0($gp) 		#Save back char so we can pull next char value later
+	beq $t2, $t6, done 	#End loop if branch condition above is true
+	nop
+	j proc1	 		#else keep looping
+	nop
+done:
+	li $t2, 65 		#Reset counter to A
+	sb $t2, 0($gp)		#Store A
+        j proc1
+        nop
+
+
+proc2: # ++++++++++ second process +++++++++
+
+        # Description: almost identical to the code of proc1 above,
+        # only 2-3 lines should differ.  Prints '0' through '9' in
+        # an endless loop. The symbol "glob2" may not be used.
+
+        j proc2
+        nop
+
+
+proc3:  # +++++++++ third process ++++++++++
+
+        # Description: almost identical to the code of proc1 above,
+        # only 2-3 lines should differ.  Prints 'a' through 'z' in
+        # an endless loop. The symbol "glob3" may not be used.
+
+        j proc3
+        nop
+
+# Third section: data structures for the kernel:
+# Process Control Block (PCB) consists of three words:
+# pcb: .word  (next Program Counter for this process)
+#      .word  (contents of $gp for this process)
+#      .word  (contents of $sp for this process)
+# All other context is saved on the process' own stack
+# during exception handling and SYSCALL.
+
+        .section .kdata
+curpcb: .word  pcb1
+pcb1:   .word  0, 0, 0
+pcb2:   .word  proc2, glob2, 0x7fffbf94
+pcb3:   .word  proc3, glob3, 0x7fff7f94
+
+# Fourth section: kernel code.
+
+        .section .ktext , "xa"
+        .set noreorder
+
+kernel_loop:
+	mfc0	$t3, $13		#Load Cause reg
+	li 	$t4, 0xFFFF0000		#Init address
+	sll	$t3, $t3, 26		#Cause[32:5]
+	srl	$t3, $t3, 28		#Cause[5:2] for the exception code
+	bne	$t3, 8, kernel_end	#If Cause reg [5:2] / Exception code does not equal 8; end
+	bne	$v0, 0x102, kernel_end	#If value indicating output is not correct; end	
+	mfc0	$k1, $14		#Load EPC address which will where we return after kernel
+	sb	$a0, 8($t4)		#Writing the character we sent through to kernel via a0
+	addiu	$k1, $k1, 4		#Return address +4, to count into next PC instruction
+	
+	jr	$k1			#Jump to EPC address + 4
+	rfe				#Return control to user
+	nop
+kernel_end:
+        b kernel_end
+        nop

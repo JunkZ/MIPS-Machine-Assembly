@@ -1,0 +1,32 @@
+/*GNU ld version 2.9-mipssde-031003 (with BFD 2.9-mipssde-031003)
+  Supported emulations:
+   elf32algmip
+   elf32ebmip
+   elf32elmip
+   mipsbig
+   mipslit
+   elf32bsmip
+   elf32lsmip
+using internal linker script:
+==================================================*/
+/*OUTPUT_FORMAT("elf32-bigmips", "elf32-bigmips",
+              "elf32-littlemips")*/
+OUTPUT_FORMAT("elf32-tradbigmips")
+OUTPUT_ARCH(mips)
+ENTRY(__start)
+ SEARCH_DIR(/software/mips-sde/current/lib);
+/* Do we need any of these for elf?
+   __DYNAMIC = 0;    */
+
+SECTIONS
+{
+  . = 0x00000000;
+  __start = .;
+  .text : { *(.text) }
+  . = 0x00001000;
+  .data : { *(.data) }
+  . = 0x80000080;
+  .ktext : { *(.ktext) }
+  . = 0x80001000;
+  .kdata : { *(.kdata) }
+}

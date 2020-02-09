@@ -1,0 +1,144 @@
+
+a.out:     file format elf32-tradbigmips
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000f0  00000000  00000000  00000054  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         0000000c  00001000  00001000  00001054  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  0000100c  0000100c  00001060  2**0
+                  ALLOC
+  3 .reginfo      00000018  00000000  00000000  00001060  2**2
+                  CONTENTS, READONLY, LINK_ONCE_SAME_SIZE
+  4 .pdr          00000000  00000000  00000000  00001078  2**2
+                  CONTENTS, READONLY
+SYMBOL TABLE:
+00000000 l    d  .text	00000000 .text
+00001000 l    d  .data	00000000 .data
+0000100c l    d  .bss	00000000 .bss
+00000000 l    d  .reginfo	00000000 .reginfo
+00000000 l    d  .pdr	00000000 .pdr
+00000000 l    d  *ABS*	00000000 .shstrtab
+00000000 l    d  *ABS*	00000000 .symtab
+00000000 l    d  *ABS*	00000000 .strtab
+0000000c l       .text	00000000 break1
+00000018 l       .text	00000000 break2
+00001000 l       .data	00000000 res_heap
+00000028 l       .text	00000000 break3
+00001004 l       .data	00000000 bytearr_heap
+00000058 l       .text	00000000 break4
+00000094 l       .text	00000000 break5
+000000a8 l       .text	00000000 loop1
+000000bc l       .text	00000000 break6
+00001008 l       .data	00000000 word_heap
+000000d4 l       .text	00000000 loop2
+000000e8 l       .text	00000000 break7
+000000ec l       .text	00000000 stop
+00000000 g       *ABS*	00000000 __start
+
+
+Contents of section .text:
+ 0000 24080001 21080002 21080003 00000000  $...!...!.......
+ 0010 21090001 2528fffe 00000000 3c040000  !...%(......<...
+ 0020 8c841000 ac880000 00000000 3c050000  ............<...
+ 0030 24a51004 24080000 80aa0000 010a4020  $...$.........@ 
+ 0040 80aa0001 010a4020 80aa0002 010a4020  ......@ ......@ 
+ 0050 80aa0003 010a4020 00000000 3c050000  ......@ ....<...
+ 0060 24a51004 24080000 80aa0000 010a4020  $...$.........@ 
+ 0070 20a50001 80aa0000 010a4020 20a50001   .........@  ...
+ 0080 80aa0000 010a4020 20a50001 80aa0000  ......@  .......
+ 0090 010a4020 00000000 3c050000 24a51004  ..@ ....<...$...
+ 00a0 24080000 240b0004 80aa0000 010a4020  $...$.........@ 
+ 00b0 20a50001 216bffff 1d60fffb 00000000   ...!k...`......
+ 00c0 3c050000 24a51008 8caa0000 24080000  <...$.......$...
+ 00d0 240b0004 314900ff 01094020 000a5202  $...1I....@ ..R.
+ 00e0 216bffff 1d60fffb 00000000 1000ffff  !k...`..........
+Contents of section .data:
+ 1000 00000000 00010203 00010203           ............    
+Contents of section .reginfo:
+ 0000 10000f30 00000000 00000000 00000000  ...0............
+ 0010 00000000 00000000                    ........        
+Disassembly of section .text:
+
+00000000 <break1-0xc>:
+   0:	24080001 	li	t0,1
+   4:	21080002 	addi	t0,t0,2
+   8:	21080003 	addi	t0,t0,3
+
+0000000c <break1>:
+   c:	00000000 	nop
+  10:	21090001 	addi	t1,t0,1
+  14:	2528fffe 	addiu	t0,t1,-2
+
+00000018 <break2>:
+  18:	00000000 	nop
+  1c:	3c040000 	lui	a0,0x0
+  20:	8c841000 	lw	a0,4096(a0)
+  24:	ac880000 	sw	t0,0(a0)
+
+00000028 <break3>:
+  28:	00000000 	nop
+  2c:	3c050000 	lui	a1,0x0
+  30:	24a51004 	addiu	a1,a1,4100
+  34:	24080000 	li	t0,0
+  38:	80aa0000 	lb	t2,0(a1)
+  3c:	010a4020 	add	t0,t0,t2
+  40:	80aa0001 	lb	t2,1(a1)
+  44:	010a4020 	add	t0,t0,t2
+  48:	80aa0002 	lb	t2,2(a1)
+  4c:	010a4020 	add	t0,t0,t2
+  50:	80aa0003 	lb	t2,3(a1)
+  54:	010a4020 	add	t0,t0,t2
+
+00000058 <break4>:
+  58:	00000000 	nop
+  5c:	3c050000 	lui	a1,0x0
+  60:	24a51004 	addiu	a1,a1,4100
+  64:	24080000 	li	t0,0
+  68:	80aa0000 	lb	t2,0(a1)
+  6c:	010a4020 	add	t0,t0,t2
+  70:	20a50001 	addi	a1,a1,1
+  74:	80aa0000 	lb	t2,0(a1)
+  78:	010a4020 	add	t0,t0,t2
+  7c:	20a50001 	addi	a1,a1,1
+  80:	80aa0000 	lb	t2,0(a1)
+  84:	010a4020 	add	t0,t0,t2
+  88:	20a50001 	addi	a1,a1,1
+  8c:	80aa0000 	lb	t2,0(a1)
+  90:	010a4020 	add	t0,t0,t2
+
+00000094 <break5>:
+  94:	00000000 	nop
+  98:	3c050000 	lui	a1,0x0
+  9c:	24a51004 	addiu	a1,a1,4100
+  a0:	24080000 	li	t0,0
+  a4:	240b0004 	li	t3,4
+
+000000a8 <loop1>:
+  a8:	80aa0000 	lb	t2,0(a1)
+  ac:	010a4020 	add	t0,t0,t2
+  b0:	20a50001 	addi	a1,a1,1
+  b4:	216bffff 	addi	t3,t3,-1
+  b8:	1d60fffb 	bgtz	t3,a8 <loop1>
+
+000000bc <break6>:
+  bc:	00000000 	nop
+  c0:	3c050000 	lui	a1,0x0
+  c4:	24a51008 	addiu	a1,a1,4104
+  c8:	8caa0000 	lw	t2,0(a1)
+  cc:	24080000 	li	t0,0
+  d0:	240b0004 	li	t3,4
+
+000000d4 <loop2>:
+  d4:	314900ff 	andi	t1,t2,0xff
+  d8:	01094020 	add	t0,t0,t1
+  dc:	000a5202 	srl	t2,t2,0x8
+  e0:	216bffff 	addi	t3,t3,-1
+  e4:	1d60fffb 	bgtz	t3,d4 <loop2>
+
+000000e8 <break7>:
+  e8:	00000000 	nop
+
+000000ec <stop>:
+  ec:	1000ffff 	b	ec <stop>
